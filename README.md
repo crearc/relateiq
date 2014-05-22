@@ -1,4 +1,5 @@
-relateiq
-========
+# relateiq
 
 Python client for RelateIQ
+
+## (in development)
