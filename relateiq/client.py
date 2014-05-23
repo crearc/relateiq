@@ -41,8 +41,7 @@ class Client(object):
             'Accept': 'application/json'
         })
 
-    def request(self, target, method='GET', data={}, files={}):
-        assert method in ['GET', 'POST', 'PUT'], method
+    def request(self, target, method, data={}, files={}):
 
         uri = self._build_uri(target)
 
@@ -83,21 +82,19 @@ class Client(object):
 
         uri = '/contacts?' + query
 
-        return self.request(uri)
+        return self.request(uri, 'GET')
 
     def create_contact(self, new_contact):
-        method = 'POST'
         uri = '/contacts'
-        return self.request(uri, method=method, data=new_contact)
+        return self.request(uri, 'POST', data=new_contact)
 
     def get_contact(self, contact_id):
         uri = '/contacts/{}'.format(contact_id)
-        return self.request(uri)
+        return self.request(uri, 'GET')
 
     def update_contact(self, contact_id, updated_contact):
-        method = 'PUT'
         uri = '/contacts/{}'.format(contact_id)
-        self.request(uri, method=method, data=updated_contact)
+        self.request(uri, 'PUT', data=updated_contact)
 
     def accounts(self, ids=None, start=0, limit=20):
         assert limit <= 50
@@ -112,43 +109,72 @@ class Client(object):
 
         uri = '/accounts?' + query
 
-        return self.request(uri)
+        return self.request(uri, 'GET')
 
     def create_account(self, new_account):
         uri = '/accounts'
-        method = 'POST'
         data = {'name': new_account}
-        return self.request(uri, method=method, data=data}
+        return self.request(uri, 'POST', data=data}
 
     def get_account(self, account_id):
         uri = '/accounts/{}'.format(account_id)
-        return self.request(uri)
+        return self.request(uri, 'GET')
 
     def update_account(self, account_id, updated_account):
         uri = '/accounts/{}'.format(account_id)
-        method = 'PUT'
-        self.request(uri, method=method, data=updated_account)
+        self.request(uri, 'PUT', data=updated_account)
 
     def lists(self, ids=None, start=0, limit=20):
-        raise NotImplementedError
+        assert limit <= 50
+
+        query = "_start={_start}&_limit={_limit}".format(**{
+            '_start': start,
+            '_limit': limit})
+
+        if ids is not None:
+            id_list = string.join(ids, ',')
+            query = "_ids={}&".format(id_list) + query
+
+        uri = '/lists?' + query
+
+        return self.request(uri, 'GET')
 
     def get_list(self, list_id):
-        raise NotImplementedError
+        uri = '/lists/{}'.format(list_id)
+        return self.request(uri, 'GET')
 
     def list_items(self, list_id, item_ids=None, start=0, limit=20):
-        raise NotImplementedError
+        assert limit <= 50
+
+        query = "_start={_start}&_limit={_limit}".format(**{
+            '_start': start,
+            '_limit': limit})
+
+        if ids is not None:
+            id_list = string.join(ids, ',')
+            query = "_ids={}&".format(id_list) + query
+
+        uri = '/lists/{}/listitems?'.format(list_id) + query
+
+        return self.request(uri, 'GET')
 
     def create_list_item(self, list_id, new_list_item):
         raise NotImplementedError
 
     def get_list_item(self, list_id, item_id):
-        raise NotImplementedError
+        uri = '/lists/{listId}/listitems/{itemId}'.format(
+            listId=list_id, itemId=item_id)
+        return self.request(uri, 'GET')
 
     def update_list_item(self, list_id, item_id, updated_item):
-        raise NotImplementedError
+        uri = '/lists/{listId}/listitems/{itemId}'.format(
+            listId=list_id, itemId=item_id)
+        return self.request(uri, 'PUT', data=updated_item)
 
     def delete_list_item(self, list_id, item_id):
-        raise NotImplementedError
+        uri = '/lists/{listId}/listitems/{itemId}'.format(
+            listId=list_id, itemId=item_id)
+        return self.request(uri, 'DELETE')
 
     def events(self):
         raise NotImplementedError
