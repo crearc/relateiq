@@ -170,7 +170,7 @@ class Client(object):
 
     def create_list_item(self, list_id, new_list_item):
         uri = '/lists/{listId}/listitems'.format(
-                listId=list_id)
+            listId=list_id)
         return self.request(uri, 'POST', data=new_list_item)
 
     def get_list_item(self, list_id, item_id):
