@@ -19,13 +19,13 @@ tests_require = [
 ]
 
 setup(
-    name="console",
+    name="relateiq",
     version="0.1",
     author="Tristan Wietsma",
     author_email="",
     url="",
     description="A Python client for RelateIQ",
-    packages=["console"],
+    packages=["relateiq"],
     long_description=read('README.md'),
     setup_requires=['nose>=1.0'],
     install_requires=install_requires,
