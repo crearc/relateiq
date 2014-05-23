@@ -69,6 +69,10 @@ class Client(object):
     def organizations(self):
         raise NotImplementedError
 
+    ############
+    # CONTACTS #
+    ############
+
     def contacts(self, ids=None, start=0, limit=20):
         assert limit <= 50
 
@@ -81,12 +85,10 @@ class Client(object):
             query = "_ids={}&".format(id_list) + query
 
         uri = '/contacts?' + query
-
         return self.request(uri, 'GET')
 
     def create_contact(self, new_contact):
-        uri = '/contacts'
-        return self.request(uri, 'POST', data=new_contact)
+        return self.request('/contacts', 'POST', data=new_contact)
 
     def get_contact(self, contact_id):
         uri = '/contacts/{}'.format(contact_id)
@@ -95,6 +97,10 @@ class Client(object):
     def update_contact(self, contact_id, updated_contact):
         uri = '/contacts/{}'.format(contact_id)
         self.request(uri, 'PUT', data=updated_contact)
+
+    ############
+    # ACCOUNTS #
+    ############
 
     def accounts(self, ids=None, start=0, limit=20):
         assert limit <= 50
@@ -108,13 +114,11 @@ class Client(object):
             query = "_ids={}&".format(id_list) + query
 
         uri = '/accounts?' + query
-
         return self.request(uri, 'GET')
 
     def create_account(self, new_account):
-        uri = '/accounts'
         data = {'name': new_account}
-        return self.request(uri, 'POST', data=data}
+        return self.request('/accounts', 'POST', data=data}
 
     def get_account(self, account_id):
         uri = '/accounts/{}'.format(account_id)
@@ -123,6 +127,10 @@ class Client(object):
     def update_account(self, account_id, updated_account):
         uri = '/accounts/{}'.format(account_id)
         self.request(uri, 'PUT', data=updated_account)
+
+    #########
+    # LISTS #
+    #########
 
     def lists(self, ids=None, start=0, limit=20):
         assert limit <= 50
@@ -136,12 +144,15 @@ class Client(object):
             query = "_ids={}&".format(id_list) + query
 
         uri = '/lists?' + query
-
         return self.request(uri, 'GET')
 
     def get_list(self, list_id):
         uri = '/lists/{}'.format(list_id)
         return self.request(uri, 'GET')
+
+    ##############
+    # LIST ITEMS #
+    ##############
 
     def list_items(self, list_id, item_ids=None, start=0, limit=20):
         assert limit <= 50
@@ -155,11 +166,12 @@ class Client(object):
             query = "_ids={}&".format(id_list) + query
 
         uri = '/lists/{}/listitems?'.format(list_id) + query
-
         return self.request(uri, 'GET')
 
     def create_list_item(self, list_id, new_list_item):
-        raise NotImplementedError
+        uri = '/lists/{listId}/listitems'.format(
+                listId=list_id)
+        return self.request(uri, 'POST', data=new_list_item)
 
     def get_list_item(self, list_id, item_id):
         uri = '/lists/{listId}/listitems/{itemId}'.format(
@@ -176,11 +188,19 @@ class Client(object):
             listId=list_id, itemId=item_id)
         return self.request(uri, 'DELETE')
 
+    ##########
+    # EVENTS #
+    ##########
+
     def events(self):
         raise NotImplementedError
 
     def create_event(self, new_event):
-        raise NotImplementedError
+        self.request('/events', 'PUT', data=new_event)
+
+    #########
+    # USERS #
+    #########
 
     def users(self):
         raise NotImplementedError
