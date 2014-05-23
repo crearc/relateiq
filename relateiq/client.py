@@ -73,7 +73,7 @@ class Client(object):
     def contacts(self, ids=None, start=0, limit=20):
         assert limit <= 50
 
-        query = "_start={_start}&_limit={_limit}".format({
+        query = "_start={_start}&_limit={_limit}".format(**{
             '_start': start,
             '_limit': limit})
 
@@ -81,21 +81,28 @@ class Client(object):
             id_list = string.join(ids, ',')
             query = "_ids={}&".format(id_list) + query
 
-        return self.request('/contacts?' + query)
+        uri = '/contacts?' + query
 
-    def create_contact(self):
-        raise NotImplementedError
+        return self.request(uri)
+
+    def create_contact(self, new_contact):
+        method = 'POST'
+        uri = '/contacts'
+        return self.request(uri, method=method, data=new_contact)
 
     def get_contact(self, contact_id):
-        return self.request('/contacts/{}'.format(contact_id))
+        uri = '/contacts/{}'.format(contact_id)
+        return self.request(uri)
 
     def update_contact(self, contact_id, updated_contact):
-        self.request('/contacts/{}'.format(contact_id), method='PUT', data=updat    ed_contact)
+        method = 'PUT'
+        uri = '/contacts/{}'.format(contact_id)
+        self.request(uri, method=method, data=updated_contact)
 
     def accounts(self, ids=None, start=0, limit=20):
         assert limit <= 50
 
-        query = "_start={_start}&_limit={_limit}".format({
+        query = "_start={_start}&_limit={_limit}".format(**{
             '_start': start,
             '_limit': limit})
 
@@ -103,17 +110,24 @@ class Client(object):
             id_list = string.join(ids, ',')
             query = "_ids={}&".format(id_list) + query
 
-        return self.request('/accounts?' + query)
+        uri = '/accounts?' + query
+
+        return self.request(uri)
 
     def create_account(self, new_account):
-        return self.request('/accounts', method='POST', data={'name': new_account}}
+        uri = '/accounts'
+        method = 'POST'
+        data = {'name': new_account}
+        return self.request(uri, method=method, data=data}
 
     def get_account(self, account_id):
-        return self.request('/accounts/{}'.format(account_id))
+        uri = '/accounts/{}'.format(account_id)
+        return self.request(uri)
 
     def update_account(self, account_id, updated_account):
-        self.request(
-            '/accounts/{}'.format(account_id), method='PUT', data=updated_account)
+        uri = '/accounts/{}'.format(account_id)
+        method = 'PUT'
+        self.request(uri, method=method, data=updated_account)
 
     def lists(self, ids=None, start=0, limit=20):
         raise NotImplementedError
