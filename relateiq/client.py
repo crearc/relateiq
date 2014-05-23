@@ -3,6 +3,7 @@ import requests
 import simplejson
 import xml.etree.ElementTree as ET
 import re
+import string
 import os
 
 import relateiq
@@ -13,25 +14,39 @@ DATETIME_HANDLER = lambda obj: obj.isoformat() if isinstance(
     obj, datetime.datetime) else None
 
 
+RESPONSE = {
+    200: "OK",
+    400: "Bad request",
+    401: "Unauthorized",
+    403: "Forbidden",
+    404: "Not found",
+    422: "Unprocessable entity",
+    429: "Rate limit exceeded",
+    500: "Internal server error",
+    503: "Service unavailable; try again later"
+}
+
+
 class Client(object):
 
     def __init__(self, api_key, secret_key, host=API_HOST):
         self.api_key = api_key
         self.secret_key = secret_key
         self.host = host
-        
+
         self.session = requests.session()
         self.session.auth = (self.api_key, self.secret_key)
         self.session.headers.update({
             'User-Agent': 'relateiq-python/%s' % relateiq.get_version(),
+            'Accept': 'application/json'
         })
 
     def request(self, target, method='GET', data={}, files={}):
-        assert method in ['GET', 'POST'], method
+        assert method in ['GET', 'POST', 'PUT'], method
 
         uri = self._build_uri(target)
 
-        if method == 'POST':
+        if method == 'POST' or method == 'PUT':
             headers = {'Content-Type': "application/json"}
             json_data = simplejson.dumps(data, default=DATETIME_HANDLER)
             response = self.session.post(uri, data=json_data,
@@ -42,20 +57,90 @@ class Client(object):
         if response.status_code == 200:
             if response.text:
                 return simplejson.loads(response.text)
-            else:
-                return ''
+            return ''
 
-        return response.text
+        print(response.text)
+        raise RESPONSE[response.status_code]
 
     def _build_uri(self, target):
         proto = "https://"
         uri = "%s%s%s" % (proto, self.host, target)
         return uri
 
-    def get_accounts(self):
-        resp = self.request('/accounts')
-        print resp
+    def organizations(self):
+        raise NotImplementedError
 
-    def get_lists(self):
-        resp = self.request('/lists')
-        print resp
+    def contacts(self, ids=None, start=0, limit=20):
+        assert limit <= 50
+
+        query = "_start={_start}&_limit={_limit}".format({
+            '_start': start,
+            '_limit': limit})
+
+        if ids is not None:
+            id_list = string.join(ids, ',')
+            query = "_ids={}&".format(id_list) + query
+
+        return self.request('/contacts?' + query)
+
+    def create_contact(self):
+        raise NotImplementedError
+
+    def get_contact(self, contact_id):
+        return self.request('/contacts/{}'.format(contact_id))
+
+    def update_contact(self, contact_id, updated_contact):
+        self.request('/contacts/{}'.format(contact_id), method='PUT', data=updat    ed_contact)
+
+    def accounts(self, ids=None, start=0, limit=20):
+        assert limit <= 50
+
+        query = "_start={_start}&_limit={_limit}".format({
+            '_start': start,
+            '_limit': limit})
+
+        if ids is not None:
+            id_list = string.join(ids, ',')
+            query = "_ids={}&".format(id_list) + query
+
+        return self.request('/accounts?' + query)
+
+    def create_account(self, new_account):
+        return self.request('/accounts', method='POST', data={'name': new_account}}
+
+    def get_account(self, account_id):
+        return self.request('/accounts/{}'.format(account_id))
+
+    def update_account(self, account_id, updated_account):
+        self.request(
+            '/accounts/{}'.format(account_id), method='PUT', data=updated_account)
+
+    def lists(self, ids=None, start=0, limit=20):
+        raise NotImplementedError
+
+    def get_list(self, list_id):
+        raise NotImplementedError
+
+    def list_items(self, list_id, item_ids=None, start=0, limit=20):
+        raise NotImplementedError
+
+    def create_list_item(self, list_id, new_list_item):
+        raise NotImplementedError
+
+    def get_list_item(self, list_id, item_id):
+        raise NotImplementedError
+
+    def update_list_item(self, list_id, item_id, updated_item):
+        raise NotImplementedError
+
+    def delete_list_item(self, list_id, item_id):
+        raise NotImplementedError
+
+    def events(self):
+        raise NotImplementedError
+
+    def create_event(self, new_event):
+        raise NotImplementedError
+
+    def users(self):
+        raise NotImplementedError
