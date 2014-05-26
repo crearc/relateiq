@@ -8,7 +8,7 @@ class TestClient(object):
 
     def test_request(self):
         pass
-        
+
     def test_organizations(self):
         pass
 
