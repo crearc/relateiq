@@ -14,19 +14,6 @@ DATETIME_HANDLER = lambda obj: obj.isoformat() if isinstance(
     obj, datetime.datetime) else None
 
 
-RESPONSE = {
-    200: "OK",
-    400: "Bad request",
-    401: "Unauthorized",
-    403: "Forbidden",
-    404: "Not found",
-    422: "Unprocessable entity",
-    429: "Rate limit exceeded",
-    500: "Internal server error",
-    503: "Service unavailable; try again later"
-}
-
-
 class Client(object):
 
     def __init__(self, api_key, secret_key, host=API_HOST):
@@ -53,13 +40,12 @@ class Client(object):
         else:
             response = self.session.get(uri)
 
-        if response.status_code == 200:
+        if response.status_code == requests.codes.OK:
             if response.text:
                 return simplejson.loads(response.text)
             return ''
 
-        print(response.text)
-        raise RESPONSE[response.status_code]
+        raise response.status_code, response.text
 
     def _build_uri(self, target):
         proto = "https://"
